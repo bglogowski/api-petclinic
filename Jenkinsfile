@@ -12,7 +12,7 @@ pipeline
     amiNameTagValue = "";
     thisTestNameVar = "";
     thisTestValue = "api-testing";
-    ProjectName = "petclinic-spring";
+    ProjectName = "spring-petclinic";
     fileProperties = "file.properties"
   }
 
@@ -23,8 +23,8 @@ pipeline
       steps {
         echo "Getting the API Testing Repo"
         git(
-        url:'git@github.com:ochoadevops/petclinic-api.git',
-        credentialsId: 'api',
+        url:'git@github.com:bglogowski/api-petclinic.git',
+        credentialsId: 'myKey',
         branch: "main"
         )
      }
@@ -81,9 +81,9 @@ pipeline
 
                  sh 'pwd'
                  sh 'ls -l'
-                 sh '/usr/local/bin/terraform init -input=false'
-                 sh '/usr/local/bin/terraform plan'
-                 sh '/usr/local/bin/terraform apply -auto-approve'
+                 sh '/usr/bin/terraform init -input=false'
+                 sh '/usr/bin/terraform plan'
+                 sh '/usr/bin/terraform apply -auto-approve'
 
                  echo 'Starting sleep for 3 minutes to allow for the EC2 Instance to complete startup'
                  sleep(time: 3, unit: 'MINUTES')
@@ -114,7 +114,7 @@ pipeline
 
                  def FindInstancePublicIP = "";
 
-                 FindInstancePublicIP =  "aws --region us-west-1  ec2 describe-instances --filters \\\'Name=tag:build_id,Values=\\\"TAG_TO_REPLACE\\\"\\\' | grep -i PublicIpAddress | awk '{print \$2 }' | awk '{print substr(\$1,2); }' | awk '{print substr(\$1, 1, length(\$1)-2)}'";
+                 FindInstancePublicIP =  "aws --region us-west-2  ec2 describe-instances --filters \\\'Name=tag:build_id,Values=\\\"TAG_TO_REPLACE\\\"\\\' | grep -i PublicIpAddress | awk '{print \$2 }' | awk '{print substr(\$1,2); }' | awk '{print substr(\$1, 1, length(\$1)-2)}'";
 
                  echo "Original string is :   ${FindInstancePublicIP} ";
 
@@ -169,11 +169,11 @@ pipeline
                  sh 'rm -f test-results.*'
                  sh 'rm -r -f html-report'
                  sh 'ls -l'
-                 sh '/usr/local/bin/jmeter/bin/jmeter.sh -n -t ./test-plan.jmx -l ./test-results.csv'
+                 sh '/opt/jmeter/bin/jmeter.sh -n -t ./test-plan.jmx -l ./test-results.csv'
                  sh 'mkdir html-report'
                  sh 'ls -l'
                  echo "create html report"
-                 sh '/usr/local/bin/jmeter/bin/jmeter.sh -g ./test-results.csv -e -o html-report'
+                 sh '/opt/jmeter/bin/jmeter.sh -g ./test-results.csv -e -o html-report'
 
                  echo "uploading artifacts to Jenkins dashboard"
                  archiveArtifacts '**/*.*'
@@ -195,7 +195,7 @@ pipeline
                  echo "update terraform variables "
                  // Test completed, destroy environment
                  echo "Test completed, destroying environment"
-                 sh '/usr/local/bin/terraform destroy -auto-approve'
+                 sh '/usr/bin/terraform destroy -auto-approve'
               }
           }
       }
