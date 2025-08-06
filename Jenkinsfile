@@ -14,6 +14,7 @@ pipeline
     thisTestValue = "api-testing";
     ProjectName = "spring-petclinic";
     fileProperties = "file.properties"
+    TF_CLI_ARGS = "-no-color"
   }
 
   stages {
